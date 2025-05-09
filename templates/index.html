@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Isodose Map Generator</title>
+  <script src="{{ url_for('static', filename='script.js') }}"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+    }
+    .container {
+      display: flex;
+      align-items: flex-start;
+      gap: 20px;
+      padding: 20px;
+    }
+    table {
+      border-collapse: collapse;
+    }
+    th, td {
+      padding: 5px 10px;
+    }
+
+    img {
+      border: 1px solid #000;
+    }
+  </style>
+</head>
+<body>
+  <h2>Isodose Map Input</h2>
+
+  <div class="container">
+    <div>
+      <table border="1" id="dataTable">
+        <tr>
+          <th>Angle (°)</th>
+          <th>Distance (m)</th>
+          <th>Dose (μSv/hr)</th>
+        </tr>
+        <tr>
+          <td><input type="number" min="0" max="360"></td>
+          <td><input type="number" step="1"></td>
+          <td><input type="number" step="0.1"></td>
+        </tr>
+      </table>
+      <button onclick="addRow()">Add Row</button>
+      <button onclick="generateMap()">Generate Map</button>
+    </div>
+
+    <img id="doseMap" width="700" height="600" />
+  </div>
+</body>
+</html>
