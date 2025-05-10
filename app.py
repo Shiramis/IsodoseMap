@@ -28,21 +28,37 @@ def generate_map():
     grid_x, grid_y = np.mgrid[-4:4:300j, -4:4:300j]
     grid_dose = griddata((x, y), normalized_dose, (grid_x, grid_y), method='cubic')
 
-    fig, ax = plt.subplots(figsize=(6, 6))
+    fig, ax = plt.subplots(figsize=(7, 5.9), dpi=100)
     contour = ax.contourf(grid_x, grid_y, grid_dose, levels=np.linspace(0, 1, 100), cmap=cm.inferno)
-    ax.set_title("Live 2D Isodose Map")
+
+    # Add colorbar next to the plot to represent dose levels
+    cbar = fig.colorbar(contour, ax=ax, fraction=0.05, pad=0.03)
+    cbar.set_label("Normalized Dose")
+
+    ax.set_title("2D Isodose Map")
     ax.set_xlabel("x (m)")
     ax.set_ylabel("y (m)")
     ax.axis("equal")
     ax.grid(True)
+    # Draw to compute layout
+    fig.canvas.draw()
+
+    # Get figure size in pixels
+    width, height = fig.canvas.get_width_height()
+    # Transform (0,0) data coordinate into pixel coordinate
+    x0_data_px, y0_data_px = ax.transData.transform((0, 0))
+    # Flip y-axis to match top-left HTML origin
+    x0_px = width - x0_data_px
+    y0_px = height - y0_data_px
 
     buf = io.BytesIO()
-    plt.savefig(buf, format="png")
+    fig.savefig(buf, format="png", dpi=100)
     plt.close(fig)
     buf.seek(0)
     img_base64 = base64.b64encode(buf.read()).decode("utf-8")
+    print(x0_px, y0_px)
 
-    return jsonify({"image": img_base64})
+    return jsonify({"image": img_base64, "x0_px": x0_px, "y0_px": y0_px})
 
 if __name__ == '__main__':
     app.run(debug=True)
