@@ -13,22 +13,24 @@ function drawTShape(centerX, centerY) {
 
   // Horizontal bar
   const horRect = document.createElementNS(ns, "rect");
-  horRect.setAttribute("x", -52.5);    // center horizontally
+  horRect.setAttribute("x", -50);    // center horizontally
   horRect.setAttribute("y", -15);    // move above vertical bar
   horRect.setAttribute("width", 100);
   horRect.setAttribute("height", 30);
-  horRect.setAttribute("fill", "#8F9A8F");
-  horRect.setAttribute("fill-opacity", "0.5");
-
+  horRect.setAttribute("fill", "none"); // No fill
+  horRect.setAttribute("stroke", "black"); // Black border
+  horRect.setAttribute("stroke-width", "1.5");
+  horRect.setAttribute("stroke-opacity", "0.5");
   // Vertical bar (centered at (0,0), pointing down)
   const vertRect = document.createElementNS(ns, "rect");
-  vertRect.setAttribute("x", -17.5); // center horizontally
-  vertRect.setAttribute("y", -15);     // start from center downward
+  vertRect.setAttribute("x", -15); // center horizontally
+  vertRect.setAttribute("y", -15);    // start from center downward
   vertRect.setAttribute("width", 30);
   vertRect.setAttribute("height", 120);
-  vertRect.setAttribute("fill", "#8F9A8F");
-  vertRect.setAttribute("fill-opacity", "0.5");
-
+  vertRect.setAttribute("fill", "none"); // No fill
+  vertRect.setAttribute("stroke", "black"); // Black border
+  vertRect.setAttribute("stroke-width", "1.5");
+  vertRect.setAttribute("stroke-opacity", "0.5");
   // Label: Anode (left)
   const anodeText = document.createElementNS(ns, "text");
   anodeText.setAttribute("x", -70);
