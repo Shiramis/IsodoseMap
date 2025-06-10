@@ -53,8 +53,9 @@ function drawTShape(centerX, centerY) {
 
   // Rotation handler
   const slider = document.getElementById("rotateSlider");
-  slider.addEventListener("input", function () {
+  // Replace any existing handler to avoid multiple listeners
+  slider.oninput = function () {
     const angle = this.value;
     tGroup.setAttribute("transform", `translate(${centerX}, ${centerY}) rotate(${angle})`);
-  });
+  };
 }
