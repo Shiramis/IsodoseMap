@@ -1,6 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { drawTShape } from './Tshape'; // ✅ This must match path
 
-const DoseMapApp = () => {
+
+const App = () => {
   const [rows, setRows] = useState([{ angle: '', distance: '', dose: '' }]);
   const [imageSrc, setImageSrc] = useState(null);
   const [center, setCenter] = useState({ x: 0, y: 0 });
@@ -24,34 +26,46 @@ const DoseMapApp = () => {
     setRows(updated);
   };
 
-  function generateMap() {
-  fetch('http://localhost:5000/generate_map', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify(yourData)
-})
+  const generateMap = async () => {
+    const yourData = rows
+      .filter(r => r.angle && r.distance && r.dose)
+      .map(r => ({
+        angle: parseFloat(r.angle),
+        distance: parseFloat(r.distance),
+        dose: parseFloat(r.dose)
+      }));
 
-    .then(response => response.json())
-    .then(result => {
-      const img = document.getElementById("doseMap");
-      const svg = document.getElementById("tShape");
+    try {
+      const response = await fetch('http://localhost:5000/generate_map', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(yourData),
+      });
 
-      // Set image and show
-      img.src = "data:image/png;base64," + result.image;
-      img.style.display = "block";
+      const result = await response.json();
 
-      img.onload = () => {
-        // Match SVG size to image
-        svg.setAttribute("width", img.width);
-        svg.setAttribute("height", img.height);
+      if (result.image) {
+        const img = document.getElementById("doseMap");
+        const svg = document.getElementById("tShape");
 
-        // Draw T-shape at (x0_px, y0_px) from Flask
-        const x = img.width - result.x0_px; // Flip to HTML canvas X
-        const y = result.y0_px;             // No flip needed for Y
-        drawTShape(x, y);
-      };
-    });
-}
+        img.src = "data:image/png;base64," + result.image;
+        img.style.display = "block";
+
+        img.onload = () => {
+          svg.setAttribute("width", img.width);
+          svg.setAttribute("height", img.height);
+          const x = img.width - result.x0_px;
+          const y = result.y0_px;
+          setCenter({ x, y });
+          drawTShape(x, y);
+        };
+      } else {
+        alert(result.error || "Error generating map.");
+      }
+    } catch (error) {
+      console.error("Fetch error:", error);
+    }
+  };
 
   useEffect(() => {
     // Optional: reset rotation when new center is set
@@ -69,51 +83,65 @@ const DoseMapApp = () => {
         </div>
       </div>
 
-      <div className="container">
-        <table id="dataTable">
-          <thead>
-            <tr>
-              <th>Angle (°)</th>
-              <th>Distance (m)</th>
-              <th>Dose (μSv/hr)</th>
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map((row, i) => (
-              <tr key={i}>
-                <td>
-                  <input
-                    type="number"
-                    min="0"
-                    max="360"
-                    value={row.angle}
-                    onChange={(e) => handleInputChange(i, 'angle', e.target.value)}
-                  />
-                </td>
-                <td>
-                  <input
-                    type="number"
-                    step="1"
-                    min="0"
-                    max="4.5"
-                    value={row.distance}
-                    onChange={(e) => handleInputChange(i, 'distance', e.target.value)}
-                  />
-                </td>
-                <td>
-                  <input
-                    type="number"
-                    step="0.1"
-                    value={row.dose}
-                    onChange={(e) => handleInputChange(i, 'dose', e.target.value)}
-                  />
-                </td>
+      <div className="container" style={{ display: 'flex', alignItems: 'flex-start' }}>
+        <div className="data-panel" style={{ minWidth: 320 }}>
+          <table id="dataTable">
+            <thead>
+              <tr>
+                <th>Angle (°)</th>
+                <th>Distance (m)</th>
+                <th>Dose (μSv/hr)</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-
-        <div style={{ position: 'relative', display: 'inline-block' }}>
+            </thead>
+            <tbody>
+              {rows.map((row, i) => (
+                <tr key={i}>
+                  <td>
+                    <input
+                      type="number"
+                      step="5"
+                      min="0"
+                      max="360"
+                      value={row.angle}
+                      onChange={(e) => handleInputChange(i, 'angle', e.target.value)}
+                    />
+                  </td>
+                  <td>
+                    <input
+                      type="number"
+                      step="1"
+                      min="0"
+                      max="4.5"
+                      value={row.distance}
+                      onChange={(e) => handleInputChange(i, 'distance', e.target.value)}
+                    />
+                  </td>
+                  <td>
+                    <input
+                      type="number"
+                      step="0.1"
+                      value={row.dose}
+                      onChange={(e) => handleInputChange(i, 'dose', e.target.value)}
+                    />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          <div style={{ marginLeft: 0, marginTop: 10 }}>
+            <label htmlFor="rotateSlider">Rotate Tube:</label>
+            <input
+              ref={sliderRef}
+              type="range"
+              id="rotateSlider"
+              min="0"
+              max="360"
+              value={rotation}
+              onChange={(e) => setRotation(e.target.value)}
+            />
+          </div>
+        </div>
+        <div className="plot-panel" style={{ marginLeft: 32, position: 'relative', display: 'inline-block' }}>
           <img
             id="doseMap"
             width="700"
@@ -165,22 +193,9 @@ const DoseMapApp = () => {
             </g>
           </svg>
         </div>
-
-        <div style={{ marginLeft: 22, marginTop: 10 }}>
-          <label htmlFor="rotateSlider">Rotate Tube:</label>
-          <input
-            ref={sliderRef}
-            type="range"
-            id="rotateSlider"
-            min="0"
-            max="360"
-            value={rotation}
-            onChange={(e) => setRotation(e.target.value)}
-          />
-        </div>
       </div>
     </>
   );
 };
 
-export default DoseMapApp;
+export default App;

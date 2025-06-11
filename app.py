@@ -1,4 +1,5 @@
 from flask import Flask, send_from_directory, request, jsonify
+from flask_cors import CORS
 import numpy as np
 import matplotlib
 matplotlib.use('Agg')  # Use a non-GUI backend
@@ -11,6 +12,7 @@ import os
 
 # Point to the React build folder
 app = Flask(__name__, static_folder="static/dist", static_url_path="")
+CORS(app) # Enable CORS for all routes
 
 from flask import send_from_directory
 

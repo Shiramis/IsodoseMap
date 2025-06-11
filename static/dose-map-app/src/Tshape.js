@@ -1,8 +1,7 @@
-function drawTShape(centerX, centerY) {
+export function drawTShape(centerX, centerY) {
   const svg = document.getElementById("tShape");
   const ns = "http://www.w3.org/2000/svg";
 
-  // Clear previous content
   while (svg.firstChild) {
     svg.removeChild(svg.firstChild);
   }
@@ -11,27 +10,26 @@ function drawTShape(centerX, centerY) {
   tGroup.setAttribute("id", "tGroup");
   tGroup.setAttribute("transform", `translate(${centerX}, ${centerY}) rotate(0)`);
 
-  // Horizontal bar
   const horRect = document.createElementNS(ns, "rect");
-  horRect.setAttribute("x", -50);    // center horizontally
-  horRect.setAttribute("y", -15);    // move above vertical bar
+  horRect.setAttribute("x", -50);
+  horRect.setAttribute("y", -15);
   horRect.setAttribute("width", 100);
   horRect.setAttribute("height", 30);
-  horRect.setAttribute("fill", "none"); // No fill
-  horRect.setAttribute("stroke", "black"); // Black border
+  horRect.setAttribute("fill", "none");
+  horRect.setAttribute("stroke", "black");
   horRect.setAttribute("stroke-width", "1.5");
   horRect.setAttribute("stroke-opacity", "0.5");
-  // Vertical bar (centered at (0,0), pointing down)
+
   const vertRect = document.createElementNS(ns, "rect");
-  vertRect.setAttribute("x", -15); // center horizontally
-  vertRect.setAttribute("y", -15);    // start from center downward
+  vertRect.setAttribute("x", -15);
+  vertRect.setAttribute("y", -15);
   vertRect.setAttribute("width", 30);
   vertRect.setAttribute("height", 120);
-  vertRect.setAttribute("fill", "none"); // No fill
-  vertRect.setAttribute("stroke", "black"); // Black border
+  vertRect.setAttribute("fill", "none");
+  vertRect.setAttribute("stroke", "black");
   vertRect.setAttribute("stroke-width", "1.5");
   vertRect.setAttribute("stroke-opacity", "0.5");
-  // Label: Anode (left)
+
   const anodeText = document.createElementNS(ns, "text");
   anodeText.setAttribute("x", -70);
   anodeText.setAttribute("y", -25);
@@ -39,7 +37,6 @@ function drawTShape(centerX, centerY) {
   anodeText.setAttribute("font-size", "12");
   anodeText.textContent = "Anode";
 
-  // Label: Cathode (right)
   const cathodeText = document.createElementNS(ns, "text");
   cathodeText.setAttribute("x", 35);
   cathodeText.setAttribute("y", -25);
@@ -53,13 +50,9 @@ function drawTShape(centerX, centerY) {
   tGroup.appendChild(cathodeText);
   svg.appendChild(tGroup);
 
-  // Rotation handler
   const slider = document.getElementById("rotateSlider");
   slider.addEventListener("input", function () {
     const angle = this.value;
-    tGroup.setAttribute(
-      "transform",
-      `translate(${centerX}, ${centerY}) rotate(${angle}, 0, 0)`
-    );
+    tGroup.setAttribute("transform", `translate(${centerX}, ${centerY}) rotate(${angle}, 0, 0)`);
   });
 }
