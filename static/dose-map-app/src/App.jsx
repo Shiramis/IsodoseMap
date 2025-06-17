@@ -20,12 +20,20 @@ const App = () => {
     else alert("At least one data row must remain.");
   };
 
+  const removeRowAt = (index) => {
+    if (rows.length > 1) {
+      setRows(rows.filter((_, i) => i !== index));
+    } else {
+      alert("At least one data row must remain.");
+    }
+  };
+
   const handleInputChange = (index, field, value) => {
     const updated = [...rows];
     updated[index][field] = value;
     setRows(updated);
   };
-
+  // Function to generate the isodose map
   const generateMap = async () => {
     const yourData = rows
       .filter(r => r.angle && r.distance && r.dose)
@@ -34,7 +42,7 @@ const App = () => {
         distance: parseFloat(r.distance),
         dose: parseFloat(r.dose)
       }));
-
+    
     try {
       const response = await fetch('/generate_map', {
         method: 'POST',
@@ -46,7 +54,7 @@ const App = () => {
 
       if (result.image) {
         const img = document.getElementById("doseMap");
-        const svg = document.getElementById("tShape");
+        const svg = document.getElementById("tShape"); 
 
         img.src = "data:image/png;base64," + result.image;
         img.style.display = "block";
@@ -123,6 +131,24 @@ const App = () => {
                       value={row.dose}
                       onChange={(e) => handleInputChange(i, 'dose', e.target.value)}
                     />
+                  </td>
+                  <td>
+                    <button
+                      type="button"
+                      onClick={() => removeRowAt(i)}
+                      style={{
+                        color: 'red',
+                        fontSize: '0.85em',
+                        padding: '2px 6px',
+                        lineHeight: 1,
+                        border: 'none',
+                        background: 'none',
+                        cursor: 'pointer'
+                      }}
+                      title="Remove row"
+                    >
+                      ✕
+                    </button>
                   </td>
                 </tr>
               ))}
